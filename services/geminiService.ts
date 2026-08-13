@@ -10,6 +10,16 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "mock_api_key" });
 
 const useMock = !process.env.API_KEY || process.env.API_KEY === "mock_api_key";
 
+// AI Quality Insight: Wrap AI calls in timeout to prevent hanging UI
+const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
+    return Promise.race([
+        promise,
+        new Promise<T>((_, reject) =>
+            setTimeout(() => reject(new Error(`AI Request timed out after ${ms}ms`)), ms)
+        )
+    ]);
+};
+
 export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promise<OptimizationSuggestion[]> => {
     if (useMock) {
          return Promise.resolve([
@@ -350,20 +360,38 @@ export const getAnomalyDetection = async (): Promise<{ title: string; details: s
     };
 
     try {
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        // AI Quality Insight: 8s timeout to ensure dashboard insights don't hang Promise.all
+        const response: GenerateContentResponse = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
-        });
+        }), 8000);
         const jsonText = response.text.trim();
-        return JSON.parse(jsonText);
+
+        // AI Quality Insight: Safe JSON parsing
+        try {
+            const parsed = JSON.parse(jsonText);
+            if (parsed && typeof parsed.title === 'string' && typeof parsed.details === 'string') {
+                return parsed;
+            }
+            throw new Error("Invalid output format");
+        } catch (e) {
+            console.error("Malformed AI output:", e);
+            // Fallthrough to fallback
+        }
     } catch (error) {
         console.error("Error fetching anomaly detection:", error);
-        throw new Error("Failed to get AI anomaly detection.");
     }
+
+    // AI Quality Insight: Graceful fallback instead of throwing error which breaks Promise.all
+    return {
+        title: "Anomaly Check Unavailable",
+        details: "Currently unable to reach the AI anomaly detection service. We will try again shortly.",
+        level: "info"
+    };
 }
 
 export const getClientRiskProfileSummary = async (profile: RiskProfile): Promise<string> => {
