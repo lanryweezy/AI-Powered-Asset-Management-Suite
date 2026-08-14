@@ -91,13 +91,15 @@ export const getMarketOverview = async (assets: PortfolioAsset[]): Promise<strin
     const prompt = `You are a financial analyst. Provide a brief, insightful summary of the current Nigerian stock market, especially concerning the following assets: ${assets.map(a => a.ticker).join(', ')}. Mention any recent trends or news affecting these stocks or their sectors. Keep it concise (2-3 sentences) and professional for a dashboard market overview.`;
     
     try {
-        const response = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
-        });
+        }), 8000);
         return response.text;
     } catch(error) {
         console.error(`Error fetching market overview:`, error);
+        // AI Quality Insight: Return graceful fallback instead of breaking UI
         return "Could not load AI-powered market overview."
     }
 };
@@ -315,13 +317,14 @@ export const getGroundedInsight = async (query: string): Promise<GroundedInsight
     }
 
     try {
-        const response = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: query,
             config: {
                 tools: [{ googleSearch: {} }],
             },
-        });
+        }), 8000);
         const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
         const sources: GroundingChunk[] = chunks
             .filter(c => c.web?.uri && c.web.title)
@@ -334,7 +337,11 @@ export const getGroundedInsight = async (query: string): Promise<GroundedInsight
         return { text: response.text, sources };
     } catch (error) {
         console.error("Error fetching grounded insight:", error);
-        throw new Error("Failed to get AI-powered insight.");
+        // AI Quality Insight: Return graceful fallback instead of throwing error which breaks Promise.all
+        return {
+            text: "Currently unable to reach the AI insight service. We will try again shortly.",
+            sources: []
+        };
     }
 };
 
@@ -545,20 +552,37 @@ export const getStockSWOT = async (ticker: string): Promise<SWOTAnalysis> => {
     };
 
     try {
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response: GenerateContentResponse = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
-        });
+        }), 10000);
         const jsonText = response.text.trim();
-        return JSON.parse(jsonText);
+
+        // AI Quality Insight: Safe JSON parsing
+        try {
+            const parsed = JSON.parse(jsonText);
+            if (parsed && Array.isArray(parsed.strengths) && Array.isArray(parsed.weaknesses) && Array.isArray(parsed.opportunities) && Array.isArray(parsed.threats)) {
+                return parsed;
+            }
+        } catch (e) {
+            console.error("Malformed AI output:", e);
+        }
     } catch (error) {
         console.error(`Error fetching SWOT for ${ticker}:`, error);
-        throw new Error("Failed to get AI-powered SWOT analysis.");
     }
+
+    // AI Quality Insight: Return graceful fallback instead of throwing error which breaks Promise.all
+    return {
+        strengths: ["Currently unavailable"],
+        weaknesses: ["Currently unavailable"],
+        opportunities: ["Currently unavailable"],
+        threats: ["Currently unavailable"]
+    };
 };
 
 
