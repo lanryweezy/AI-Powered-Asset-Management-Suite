@@ -282,13 +282,14 @@ export const getMarketNews = async (): Promise<GroundedInsight> => {
     const prompt = `Provide a concise summary (3-4 sentences) of the latest news and key trends in the Nigerian stock market for today.`;
 
     try {
-        const response = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 tools: [{ googleSearch: {} }],
             },
-        });
+        }), 8000);
         const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
         const sources: GroundingChunk[] = chunks
             .filter(c => c.web?.uri && c.web.title)
@@ -301,7 +302,11 @@ export const getMarketNews = async (): Promise<GroundedInsight> => {
         return { text: response.text, sources };
     } catch (error) {
         console.error("Error fetching market news:", error);
-        throw new Error("Failed to get AI-powered market news.");
+        // AI Quality Insight: Return graceful fallback instead of throwing error which breaks Promise.all
+        return {
+            text: "Currently unable to reach the AI market news service. We will try again shortly.",
+            sources: []
+        };
     }
 };
 
