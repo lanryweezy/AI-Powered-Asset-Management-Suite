@@ -46,18 +46,24 @@ export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promis
     };
 
     try {
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response: GenerateContentResponse = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
-        });
+        }), 15000);
 
         const jsonText = response.text.trim();
-        const suggestions = JSON.parse(jsonText) as OptimizationSuggestion[];
-        return suggestions;
+        const suggestions = JSON.parse(jsonText);
+
+        // AI Quality Insight: Validate expected shape before casting to prevent UI crashes like React .map() errors
+        if (!Array.isArray(suggestions)) {
+            throw new Error("AI output was not an array");
+        }
+        return suggestions as OptimizationSuggestion[];
 
     } catch (error) {
         console.error("Error fetching portfolio optimization:", error);
