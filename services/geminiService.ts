@@ -523,20 +523,45 @@ export const getPortfolioDoctorAnalysis = async (assets: PortfolioAsset[]): Prom
     };
 
     try {
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response: GenerateContentResponse = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
-        });
+        }), 15000);
+
         const jsonText = response.text.trim();
-        return JSON.parse(jsonText);
+
+        // AI Quality Insight: Safe JSON parsing and structural validation
+        try {
+            const parsed = JSON.parse(jsonText);
+            if (
+                parsed &&
+                typeof parsed.overallScore === 'number' &&
+                typeof parsed.summary === 'string' &&
+                Array.isArray(parsed.positivePoints) &&
+                Array.isArray(parsed.areasForImprovement)
+            ) {
+                return parsed;
+            }
+            throw new Error("Invalid output format from Portfolio Doctor");
+        } catch (e) {
+             console.error("Malformed AI output:", e);
+        }
     } catch (error) {
         console.error("Error fetching portfolio doctor analysis:", error);
-        throw new Error("Failed to get AI Portfolio Doctor analysis.");
     }
+
+    // AI Quality Insight: Return graceful fallback instead of throwing error
+    return {
+        overallScore: 0,
+        summary: "Analysis currently unavailable. Please try again later.",
+        positivePoints: ["Unable to load analysis."],
+        areasForImprovement: ["Unable to load analysis."]
+    };
 };
 
 export const getStockSWOT = async (ticker: string): Promise<SWOTAnalysis> => {
