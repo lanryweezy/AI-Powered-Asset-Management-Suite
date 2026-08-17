@@ -8,3 +8,6 @@
 ## 2024-08-16 - Safe JSON Parsing Prevents React UI Crashes
 **Learning:** Blindly casting JSON.parse results to an expected type (like an array) can cause React components to crash completely if the model returns a different structure (e.g. `assets.map is not a function`). This happens even if a responseSchema is provided, as models can still occasionally output non-conforming shapes or error strings.
 **Action:** Always validate the structural shape of a parsed AI response (e.g. `Array.isArray()`) before casting and returning it. Throwing a safe, expected error here allows the calling UI to trigger a graceful fallback state instead of crashing.
+## 2024-08-17 - Portfolio Doctor Analysis Resilience Improvements
+**Learning:** Returning unvalidated JSON parsing output directly without timeouts or fallbacks risks complete UI failure when the AI service hangs or returns malformed data (like missing required fields) for the `getPortfolioDoctorAnalysis` feature.
+**Action:** Enforce strict structural validations, ensure a 15-second timeout wrapper, and implement a reliable default object fallback matching `PortfolioDoctorReport` instead of throwing raw API exceptions.
