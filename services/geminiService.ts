@@ -255,23 +255,42 @@ export const analyzeRiskScenario = async (assets: PortfolioAsset[], scenario: st
     };
 
     try {
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response: GenerateContentResponse = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
-        });
+        }), 15000);
 
         const jsonText = response.text.trim();
-        const result = JSON.parse(jsonText) as ScenarioAnalysisResult;
-        return result;
+
+        // AI Quality Insight: Safe JSON parsing and structural validation
+        try {
+            const parsed = JSON.parse(jsonText);
+            if (
+                parsed &&
+                typeof parsed.estimatedImpact === 'number' &&
+                typeof parsed.summary === 'string'
+            ) {
+                return parsed as ScenarioAnalysisResult;
+            }
+            console.warn("Invalid output format from Risk Scenario Analysis");
+        } catch (e) {
+            console.error("Malformed AI output:", e);
+        }
 
     } catch (error) {
         console.error("Error analyzing risk scenario:", error);
-        throw new Error("Failed to get AI-powered scenario analysis.");
     }
+
+    // AI Quality Insight: Return graceful fallback instead of throwing error
+    return {
+        estimatedImpact: 0,
+        summary: "Analysis currently unavailable. Please try again later."
+    };
 };
 
 export const getMarketNews = async (): Promise<GroundedInsight> => {
