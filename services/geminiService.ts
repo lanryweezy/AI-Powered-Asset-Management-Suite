@@ -477,20 +477,42 @@ export const getInvestmentIdeas = async (): Promise<{ title: string; reasoning: 
     };
 
      try {
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response: GenerateContentResponse = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
-        });
+        }), 15000);
         const jsonText = response.text.trim();
-        return JSON.parse(jsonText);
+
+        // AI Quality Insight: Safe JSON parsing and structural validation
+        try {
+            const parsed = JSON.parse(jsonText);
+            if (
+                parsed &&
+                typeof parsed.title === 'string' &&
+                typeof parsed.reasoning === 'string' &&
+                Array.isArray(parsed.tickers)
+            ) {
+                return parsed;
+            }
+            console.warn("Invalid output format from Investment Ideas");
+        } catch (e) {
+            console.error("Malformed AI output:", e);
+        }
     } catch (error) {
         console.error("Error fetching investment ideas:", error);
-        throw new Error("Failed to get AI investment ideas.");
     }
+
+    // AI Quality Insight: Return graceful fallback instead of throwing error which causes silent UI failure
+    return {
+        title: "Investment Ideas Unavailable",
+        reasoning: "Currently unable to reach the AI insight service. We will try again shortly.",
+        tickers: []
+    };
 };
 
 export const getPortfolioDoctorAnalysis = async (assets: PortfolioAsset[]): Promise<PortfolioDoctorReport> => {
