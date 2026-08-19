@@ -11,3 +11,6 @@
 ## 2024-08-17 - Portfolio Doctor Analysis Resilience Improvements
 **Learning:** Returning unvalidated JSON parsing output directly without timeouts or fallbacks risks complete UI failure when the AI service hangs or returns malformed data (like missing required fields) for the `getPortfolioDoctorAnalysis` feature.
 **Action:** Enforce strict structural validations, ensure a 15-second timeout wrapper, and implement a reliable default object fallback matching `PortfolioDoctorReport` instead of throwing raw API exceptions.
+## 2025-02-28 - Risk Scenario Analysis Resilience Improvements
+**Learning:** Returning unvalidated JSON parsing output directly without timeouts or fallbacks risks complete UI failure when the AI service hangs or returns malformed data for the `analyzeRiskScenario` feature.
+**Action:** Enforce strict structural validations, ensure a 15-second timeout wrapper, and implement a reliable default object fallback matching `ScenarioAnalysisResult` instead of throwing raw API exceptions.
