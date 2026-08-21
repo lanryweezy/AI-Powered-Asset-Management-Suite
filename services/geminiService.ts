@@ -736,18 +736,45 @@ export const getModelPortfolioAnalysis = async (model: ModelPortfolio): Promise<
     };
 
     try {
-        const response: GenerateContentResponse = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response: GenerateContentResponse = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
-        });
+        }), 15000);
+
         const jsonText = response.text.trim();
-        return JSON.parse(jsonText);
+
+        // AI Quality Insight: Safe JSON parsing and structural validation
+        try {
+            const parsed = JSON.parse(jsonText);
+            if (
+                parsed &&
+                typeof parsed.summary === 'string' &&
+                Array.isArray(parsed.strengths) &&
+                Array.isArray(parsed.weaknesses) &&
+                typeof parsed.projectedReturn === 'number' &&
+                typeof parsed.maxDrawdown === 'number'
+            ) {
+                return parsed as ModelPortfolioAnalysis;
+            }
+            throw new Error("Invalid output format from Model Portfolio Analysis");
+        } catch (e) {
+             console.error("Malformed AI output:", e);
+        }
     } catch (error) {
         console.error("Error fetching model portfolio analysis:", error);
-        throw new Error("Failed to get AI model portfolio analysis.");
     }
+
+    // AI Quality Insight: Return graceful fallback instead of throwing error
+    return {
+        summary: "Analysis currently unavailable. Please try again later.",
+        strengths: ["Unable to load analysis."],
+        weaknesses: ["Unable to load analysis."],
+        projectedReturn: 0,
+        maxDrawdown: 0
+    };
 };
