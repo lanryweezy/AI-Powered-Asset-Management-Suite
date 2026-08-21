@@ -508,6 +508,10 @@ export const getInvestmentIdeas = async (): Promise<{ title: string; reasoning: 
         console.error("Error fetching investment ideas:", error);
     }
 
+    // AI Quality Insight: Return graceful fallback instead of throwing error which causes silent UI failure
+    return {
+        title: "Investment Ideas Unavailable",
+        reasoning: "Currently unable to reach the AI insight service. We will try again shortly.",
     // AI Quality Insight: Return graceful fallback instead of throwing error
     return {
         title: "Investment Ideas Unavailable",

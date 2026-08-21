@@ -14,6 +14,9 @@
 ## 2025-02-28 - Risk Scenario Analysis Resilience Improvements
 **Learning:** Returning unvalidated JSON parsing output directly without timeouts or fallbacks risks complete UI failure when the AI service hangs or returns malformed data for the `analyzeRiskScenario` feature.
 **Action:** Enforce strict structural validations, ensure a 15-second timeout wrapper, and implement a reliable default object fallback matching `ScenarioAnalysisResult` instead of throwing raw API exceptions.
+## 2025-02-28 - Investment Ideas Resilience Improvements
+**Learning:** Returning unvalidated JSON parsing output directly without timeouts or fallbacks risks complete UI failure when the AI service hangs or returns malformed data for the `getInvestmentIdeas` feature. If the UI component (like `MarketIntelligence`) swallows the error without rendering it, this leads to a silent failure.
+**Action:** Enforce strict structural validations, ensure a 15-second timeout wrapper, and implement a reliable default object fallback matching the expected return type instead of throwing raw API exceptions.
 
 ## 2025-02-28 - Investment Ideas Resilience Improvements
 **Learning:** Returning unvalidated JSON parsing output directly without timeouts or fallbacks risks complete UI failure when the AI service hangs or returns malformed data for the `getInvestmentIdeas` feature.
