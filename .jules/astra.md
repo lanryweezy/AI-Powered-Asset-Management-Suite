@@ -25,3 +25,6 @@
 ## 2025-02-28 - Model Portfolio Analysis Resilience Improvements
 **Learning:** Returning unvalidated JSON parsing output directly without timeouts or fallbacks risks complete UI failure when the AI service hangs or returns malformed data for the `getModelPortfolioAnalysis` feature.
 **Action:** Enforce strict structural validations, ensure a 15-second timeout wrapper, and implement a reliable default object fallback matching `ModelPortfolioAnalysis` instead of throwing raw API exceptions.
+## 2025-02-28 - Preventing Silent UI Failures in String-Returning AI Calls
+**Learning:** Throwing raw errors for unguarded string-returning AI calls (like `compareStocks`) can cause silent failures in the UI if the calling component catches the error but doesn't display any error message to the user, resulting in a blank section.
+**Action:** Always wrap concurrent AI calls in timeouts and ensure they return a graceful fallback string instead of throwing errors directly when the UI expects a string and does not handle errors explicitly.
