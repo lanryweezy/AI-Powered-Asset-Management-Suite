@@ -511,10 +511,6 @@ export const getInvestmentIdeas = async (): Promise<{ title: string; reasoning: 
     // AI Quality Insight: Return graceful fallback instead of throwing error which causes silent UI failure
     return {
         title: "Investment Ideas Unavailable",
-        reasoning: "Currently unable to reach the AI insight service. We will try again shortly.",
-    // AI Quality Insight: Return graceful fallback instead of throwing error
-    return {
-        title: "Investment Ideas Unavailable",
         reasoning: "Currently unable to reach the AI service to generate new investment ideas. Please try again shortly.",
         tickers: []
     };
@@ -682,14 +678,16 @@ export const compareStocks = async (stocks: Stock[]): Promise<string> => {
     Keep the summary to 2-3 sentences. Use markdown for bolding tickers.`;
 
     try {
-        const response = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
-        });
+        }), 10000);
         return response.text;
     } catch (error) {
         console.error("Error comparing stocks:", error);
-        throw new Error("Failed to get AI stock comparison.");
+        // AI Quality Insight: Return graceful fallback instead of throwing error causing silent UI failure
+        return "Stock comparison is currently unavailable. Please try again later.";
     }
 };
 
