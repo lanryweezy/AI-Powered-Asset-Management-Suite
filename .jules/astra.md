@@ -25,3 +25,7 @@
 ## 2025-02-28 - Model Portfolio Analysis Resilience Improvements
 **Learning:** Returning unvalidated JSON parsing output directly without timeouts or fallbacks risks complete UI failure when the AI service hangs or returns malformed data for the `getModelPortfolioAnalysis` feature.
 **Action:** Enforce strict structural validations, ensure a 15-second timeout wrapper, and implement a reliable default object fallback matching `ModelPortfolioAnalysis` instead of throwing raw API exceptions.
+
+## 2024-05-18 - Graceful Fallbacks for String-Returning AI Endpoints
+**Learning:** String-returning AI endpoints without structured schemas can still cause silent UI failures (e.g. blank or empty sections) or crash Promise.all() concurrency if they throw raw errors on network or AI failure.
+**Action:** Always wrap AI calls in `withTimeout()` and return a descriptive fallback string (e.g., "Feature currently unavailable") in the catch block rather than throwing errors, especially in concurrent loading scenarios.
