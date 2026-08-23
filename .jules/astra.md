@@ -28,3 +28,7 @@
 ## 2025-02-28 - Preventing Silent UI Failures in String-Returning AI Calls
 **Learning:** Throwing raw errors for unguarded string-returning AI calls (like `compareStocks`) can cause silent failures in the UI if the calling component catches the error but doesn't display any error message to the user, resulting in a blank section.
 **Action:** Always wrap concurrent AI calls in timeouts and ensure they return a graceful fallback string instead of throwing errors directly when the UI expects a string and does not handle errors explicitly.
+
+## 2024-05-18 - Graceful Fallbacks for String-Returning AI Endpoints
+**Learning:** String-returning AI endpoints without structured schemas can still cause silent UI failures (e.g. blank or empty sections) or crash Promise.all() concurrency if they throw raw errors on network or AI failure.
+**Action:** Always wrap AI calls in `withTimeout()` and return a descriptive fallback string (e.g., "Feature currently unavailable") in the catch block rather than throwing errors, especially in concurrent loading scenarios.
