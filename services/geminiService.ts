@@ -686,8 +686,8 @@ export const compareStocks = async (stocks: Stock[]): Promise<string> => {
         return response.text;
     } catch (error) {
         console.error("Error comparing stocks:", error);
-        // AI Quality Insight: Return graceful fallback instead of throwing error which breaks UI
-        return "Comparison currently unavailable. Please try again later.";
+        // AI Quality Insight: Return graceful fallback instead of throwing error causing silent UI failure
+        return "Stock comparison is currently unavailable. Please try again later.";
     }
 };
 
