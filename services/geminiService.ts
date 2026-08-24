@@ -79,10 +79,11 @@ export const getAnalyticsInsight = async (chartName: string, data: any): Promise
     const prompt = `You are a financial analyst. Provide a brief, insightful summary for a chart titled "${chartName}". The data for the chart is: ${JSON.stringify(data)}. Keep it concise and professional.`;
     
     try {
-        const response = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
-        });
+        }), 10000);
         return response.text;
     } catch(error) {
         console.error(`Error fetching analytics insight for ${chartName}:`, error);
@@ -122,10 +123,11 @@ export const getComplianceRemediation = async (check: ComplianceCheck): Promise<
     Structure your response with clear, numbered steps. Use markdown for formatting.`;
 
     try {
-        const response = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
-        });
+        }), 10000);
         return response.text;
     } catch (error) {
         console.error("Error fetching compliance remediation:", error);
@@ -144,10 +146,11 @@ export const generateReportSummary = async (clientName: string, reportType: stri
     Keep it to 3-4 sentences. Use markdown for bolding key terms.`;
 
     try {
-        const response = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
-        });
+        }), 10000);
         return response.text;
     } catch (error) {
         console.error("Error generating report summary:", error);
@@ -205,10 +208,11 @@ export const getRiskSummary = async (assets: PortfolioAsset[]): Promise<string> 
     const prompt = `You are a financial risk analyst. Provide a brief, qualitative summary of the risk profile for the following investment portfolio. Highlight the main drivers of risk (e.g., sector concentration, high volatility assets) and any mitigating factors. Portfolio: ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, allocation: a.allocation, riskScore: a.riskScore, volatility: a.volatility, sector: a.sector })))}. Keep it concise (2-4 sentences) and professional.`;
     
     try {
-        const response = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
-        });
+        }), 10000);
         return response.text;
     } catch(error) {
         console.error(`Error fetching risk summary:`, error);
@@ -445,10 +449,11 @@ export const getClientRiskProfileSummary = async (profile: RiskProfile): Promise
     Synthesize this into a professional summary for an advisor to quickly understand the client's profile. Use markdown for bolding.`;
     
     try {
-        const response = await ai.models.generateContent({
+        // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
-        });
+        }), 10000);
         return response.text;
     } catch(error) {
         console.error(`Error fetching client risk profile summary:`, error);
