@@ -57,13 +57,30 @@ export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promis
         }), 15000);
 
         const jsonText = response.text.trim();
-        const suggestions = JSON.parse(jsonText);
+
+        let suggestions;
+        try {
+            suggestions = JSON.parse(jsonText);
+        } catch (e) {
+            console.error("Malformed AI output:", e);
+            throw new Error("AI output was not valid JSON");
+        }
 
         // AI Quality Insight: Validate expected shape before casting to prevent UI crashes like React .map() errors
         if (!Array.isArray(suggestions)) {
             throw new Error("AI output was not an array");
         }
-        return suggestions as OptimizationSuggestion[];
+
+        // AI Quality Insight: Validate required fields on each array item to prevent UI crashes when rendering
+        const validSuggestions = suggestions.filter(s =>
+            s &&
+            typeof s.ticker === 'string' &&
+            typeof s.action === 'string' &&
+            typeof s.reasoning === 'string' &&
+            typeof s.confidenceScore === 'number'
+        );
+
+        return validSuggestions as OptimizationSuggestion[];
 
     } catch (error) {
         console.error("Error fetching portfolio optimization:", error);

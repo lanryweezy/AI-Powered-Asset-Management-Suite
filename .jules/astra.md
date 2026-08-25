@@ -32,3 +32,6 @@
 ## 2024-05-18 - Graceful Fallbacks for String-Returning AI Endpoints
 **Learning:** String-returning AI endpoints without structured schemas can still cause silent UI failures (e.g. blank or empty sections) or crash Promise.all() concurrency if they throw raw errors on network or AI failure.
 **Action:** Always wrap AI calls in `withTimeout()` and return a descriptive fallback string (e.g., "Feature currently unavailable") in the catch block rather than throwing errors, especially in concurrent loading scenarios.
+## 2025-02-28 - Structural Validation of AI Array Items Prevents React UI Crashes
+**Learning:** Even when verifying that an AI response is an array (using `Array.isArray()`), failing to validate the properties of individual array items can still crash React UI components. For instance, if an expected field like `confidenceScore` is missing from an `OptimizationSuggestion` object, trying to call `.toFixed()` on it during render will throw a TypeError and crash the app.
+**Action:** Always validate the expected shape and required fields of each item within an array returned by an AI before casting and using it in UI components, discarding or handling invalid items gracefully.
