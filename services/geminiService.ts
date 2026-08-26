@@ -63,6 +63,21 @@ export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promis
         if (!Array.isArray(suggestions)) {
             throw new Error("AI output was not an array");
         }
+
+        // AI Quality Insight: Validate individual array item fields before casting
+        for (const item of suggestions) {
+            if (
+                typeof item !== 'object' ||
+                item === null ||
+                typeof item.ticker !== 'string' ||
+                !['BUY', 'SELL', 'HOLD'].includes(item.action) ||
+                typeof item.reasoning !== 'string' ||
+                typeof item.confidenceScore !== 'number'
+            ) {
+                throw new Error("AI output contained invalid array items");
+            }
+        }
+
         return suggestions as OptimizationSuggestion[];
 
     } catch (error) {
