@@ -63,6 +63,20 @@ export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promis
         if (!Array.isArray(suggestions)) {
             throw new Error("AI output was not an array");
         }
+
+        // AI Quality Insight: Explicitly validate the required fields of individual array items
+        const isValid = suggestions.every(item =>
+            item &&
+            typeof item.ticker === 'string' &&
+            ['BUY', 'SELL', 'HOLD'].includes(item.action) &&
+            typeof item.reasoning === 'string' &&
+            typeof item.confidenceScore === 'number'
+        );
+
+        if (!isValid) {
+            throw new Error("AI output array items did not match expected structure");
+        }
+
         return suggestions as OptimizationSuggestion[];
 
     } catch (error) {

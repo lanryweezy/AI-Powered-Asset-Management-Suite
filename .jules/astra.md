@@ -32,3 +32,6 @@
 ## 2024-05-18 - Graceful Fallbacks for String-Returning AI Endpoints
 **Learning:** String-returning AI endpoints without structured schemas can still cause silent UI failures (e.g. blank or empty sections) or crash Promise.all() concurrency if they throw raw errors on network or AI failure.
 **Action:** Always wrap AI calls in `withTimeout()` and return a descriptive fallback string (e.g., "Feature currently unavailable") in the catch block rather than throwing errors, especially in concurrent loading scenarios.
+## 2025-02-28 - Explicit Verification of Array Items
+**Learning:** Even when using a `responseSchema` specifying `Type.ARRAY` of `Type.OBJECT` for Gemini `generateContent`, the actual response properties can be missing or incorrectly typed, causing UI components mapping over the array to crash or fail silently. Validating just `Array.isArray()` is insufficient.
+**Action:** Always map over AI array output and explicitly validate the required fields of each individual item before casting the array and returning it, throwing a descriptive error if the structure fails validation to trigger a graceful fallback.
