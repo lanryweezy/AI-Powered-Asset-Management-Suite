@@ -60,14 +60,25 @@ export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promis
         const suggestions = JSON.parse(jsonText);
 
         // AI Quality Insight: Validate expected shape before casting to prevent UI crashes like React .map() errors
-        if (!Array.isArray(suggestions)) {
-            throw new Error("AI output was not an array");
+        if (
+            !Array.isArray(suggestions) ||
+            !suggestions.every(s =>
+                typeof s === 'object' &&
+                s !== null &&
+                typeof s.ticker === 'string' &&
+                ['BUY', 'SELL', 'HOLD'].includes(s.action) &&
+                typeof s.reasoning === 'string' &&
+                typeof s.confidenceScore === 'number'
+            )
+        ) {
+            throw new Error("AI output was not an array of valid optimization suggestions");
         }
         return suggestions as OptimizationSuggestion[];
 
     } catch (error) {
         console.error("Error fetching portfolio optimization:", error);
-        throw new Error("Failed to get AI-powered optimization suggestions.");
+        // AI Quality Insight: Return graceful fallback instead of throwing error which breaks UI
+        return [];
     }
 };
 

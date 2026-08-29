@@ -32,3 +32,7 @@
 ## 2024-05-18 - Graceful Fallbacks for String-Returning AI Endpoints
 **Learning:** String-returning AI endpoints without structured schemas can still cause silent UI failures (e.g. blank or empty sections) or crash Promise.all() concurrency if they throw raw errors on network or AI failure.
 **Action:** Always wrap AI calls in `withTimeout()` and return a descriptive fallback string (e.g., "Feature currently unavailable") in the catch block rather than throwing errors, especially in concurrent loading scenarios.
+
+## 2025-02-28 - Preventing UI Crashes with Safe Array Fallbacks
+**Learning:** Returning unvalidated JSON parsing output from `getPortfolioOptimization` or blindly throwing exceptions when the data is malformed risks completely crashing the UI. This triggers silent failures if the error isn't caught, or crashes `Promise.all` logic if it is running concurrently.
+**Action:** Enforce strict structural validations on every element within array responses from Gemini, ensuring they match exactly what the frontend expects. Instead of throwing raw API exceptions for parsing or network errors, catch the error and return a safe, valid default object (like an empty array `[]` for lists).
