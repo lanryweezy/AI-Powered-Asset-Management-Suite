@@ -10,6 +10,11 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "mock_api_key" });
 
 const useMock = !process.env.API_KEY || process.env.API_KEY === "mock_api_key";
 
+// AI Quality Insight: Validate array structure and item types to prevent React crashes
+const isArrayOfStrings = (value: any): value is string[] => {
+    return Array.isArray(value) && value.every(item => typeof item === 'string');
+};
+
 // AI Quality Insight: Wrap AI calls in timeout to prevent hanging UI
 const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
     return Promise.race([
@@ -516,7 +521,7 @@ export const getInvestmentIdeas = async (): Promise<{ title: string; reasoning: 
                 parsed &&
                 typeof parsed.title === 'string' &&
                 typeof parsed.reasoning === 'string' &&
-                Array.isArray(parsed.tickers)
+                isArrayOfStrings(parsed.tickers)
             ) {
                 return parsed;
             }
@@ -604,8 +609,8 @@ export const getPortfolioDoctorAnalysis = async (assets: PortfolioAsset[]): Prom
                 parsed &&
                 typeof parsed.overallScore === 'number' &&
                 typeof parsed.summary === 'string' &&
-                Array.isArray(parsed.positivePoints) &&
-                Array.isArray(parsed.areasForImprovement)
+                isArrayOfStrings(parsed.positivePoints) &&
+                isArrayOfStrings(parsed.areasForImprovement)
             ) {
                 return parsed;
             }
@@ -664,7 +669,7 @@ export const getStockSWOT = async (ticker: string): Promise<SWOTAnalysis> => {
         // AI Quality Insight: Safe JSON parsing
         try {
             const parsed = JSON.parse(jsonText);
-            if (parsed && Array.isArray(parsed.strengths) && Array.isArray(parsed.weaknesses) && Array.isArray(parsed.opportunities) && Array.isArray(parsed.threats)) {
+            if (parsed && isArrayOfStrings(parsed.strengths) && isArrayOfStrings(parsed.weaknesses) && isArrayOfStrings(parsed.opportunities) && isArrayOfStrings(parsed.threats)) {
                 return parsed;
             }
         } catch (e) {
@@ -776,8 +781,8 @@ export const getModelPortfolioAnalysis = async (model: ModelPortfolio): Promise<
             if (
                 parsed &&
                 typeof parsed.summary === 'string' &&
-                Array.isArray(parsed.strengths) &&
-                Array.isArray(parsed.weaknesses) &&
+                isArrayOfStrings(parsed.strengths) &&
+                isArrayOfStrings(parsed.weaknesses) &&
                 typeof parsed.projectedReturn === 'number' &&
                 typeof parsed.maxDrawdown === 'number'
             ) {
