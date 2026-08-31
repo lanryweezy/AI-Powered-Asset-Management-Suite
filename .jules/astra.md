@@ -35,3 +35,7 @@
 ## 2025-02-28 - Item-Level Validation for AI Array Outputs
 **Learning:** Checking `Array.isArray()` is necessary but not sufficient for AI responses that return lists of objects. If the array contains malformed items (e.g., missing required fields like `confidenceScore` or `action`), mapping over these items in a React component and accessing those fields (like `.toFixed(0)`) will cause the UI to crash entirely.
 **Action:** Always validate the structure and types of the individual items within an array before casting and returning it. Throw an error if an item is malformed so the UI can gracefully catch and handle it instead of crashing.
+
+## 2026-08-31 - Item-Level Type Checking for AI Array Fields
+**Learning:** Checking `Array.isArray()` is necessary but not sufficient for nested AI array fields (e.g., `tickers` or `strengths`). If a model incorrectly returns objects or numbers instead of strings within the array, passing these to React components expecting strings can cause complete UI crashes (like "Objects are not valid as a React child").
+**Action:** Always strictly validate the types of individual items within AI array outputs (e.g., using a custom `isArrayOfStrings` helper) before returning the parsed object, to ensure graceful fallback instead of rendering crashes.
