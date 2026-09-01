@@ -432,10 +432,15 @@ export const getAnomalyDetection = async (): Promise<{ title: string; details: s
         }), 8000);
         const jsonText = response.text.trim();
 
-        // AI Quality Insight: Safe JSON parsing
+        // AI Quality Insight: Safe JSON parsing and enum validation
         try {
             const parsed = JSON.parse(jsonText);
-            if (parsed && typeof parsed.title === 'string' && typeof parsed.details === 'string') {
+            if (
+                parsed &&
+                typeof parsed.title === 'string' &&
+                typeof parsed.details === 'string' &&
+                ['critical', 'warning', 'info'].includes(parsed.level)
+            ) {
                 return parsed;
             }
             throw new Error("Invalid output format");
