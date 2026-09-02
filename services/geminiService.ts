@@ -372,10 +372,12 @@ export const getGroundedInsight = async (query: string): Promise<GroundedInsight
 
     try {
         // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        // AI Quality Insight: Wrap raw user input and provide strong system instruction to prevent prompt injection and ensure professional persona
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: query,
+            contents: `You are a financial analyst. Please provide insights on the following query: "${query}"`,
             config: {
+                systemInstruction: "You are a professional financial analyst focusing on the Nigerian market. Provide concise, accurate insights. If the query is off-topic, politely decline.",
                 tools: [{ googleSearch: {} }],
             },
         }), 8000);

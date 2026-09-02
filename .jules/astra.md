@@ -43,3 +43,6 @@
 ## 2025-02-28 - Validate Enum Fields in AI JSON Outputs
 **Learning:** Checking the types of properties (e.g., `typeof parsed.title === 'string'`) is not sufficient for fields that have specific enum values in TypeScript (like `'critical' | 'warning' | 'info'`). If an AI model hallucinated a different string or if the field is missing entirely, returning it unvalidated could cause React components to crash or break styling logic that depends on those exact enum values.
 **Action:** Always explicitly validate enum properties using `.includes()` against the allowed values before casting and returning parsed AI JSON output, to ensure a graceful fallback is triggered on malformed responses.
+## 2026-09-02 - Prompt Injection and Off-Topic Query Mitigation
+**Learning:** Passing raw, unsanitized user input directly to the Gemini API as the entire contents array leaves the application vulnerable to prompt injection and allows the model to respond to off-topic queries, wasting resources and degrading the user experience.
+**Action:** Always wrap user input in a strict prompt template (e.g., `Please provide insights on the following query: "${query}"`) and provide a strong `systemInstruction` defining the persona and explicit boundaries (e.g., instructing it to politely decline off-topic queries).
