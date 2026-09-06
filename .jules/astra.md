@@ -43,3 +43,6 @@
 ## 2025-02-28 - Validate Enum Fields in AI JSON Outputs
 **Learning:** Checking the types of properties (e.g., `typeof parsed.title === 'string'`) is not sufficient for fields that have specific enum values in TypeScript (like `'critical' | 'warning' | 'info'`). If an AI model hallucinated a different string or if the field is missing entirely, returning it unvalidated could cause React components to crash or break styling logic that depends on those exact enum values.
 **Action:** Always explicitly validate enum properties using `.includes()` against the allowed values before casting and returning parsed AI JSON output, to ensure a graceful fallback is triggered on malformed responses.
+## 2025-02-28 - Mitigating Prompt Injection in User Queries
+**Learning:** Passing raw user input directly as the prompt (e.g., `contents: query`) opens the application to prompt injection attacks, allowing users to override the model's intended purpose or generate off-topic, potentially harmful responses.
+**Action:** When constructing AI prompts with raw user input, always wrap the input within a structured prompt template that sets clear boundaries (e.g., "Only provide insights related to finance"), and explicitly define the persona/role using the `systemInstruction` configuration field to enforce those boundaries at the system level.

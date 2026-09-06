@@ -370,12 +370,16 @@ export const getGroundedInsight = async (query: string): Promise<GroundedInsight
         });
     }
 
+    // AI Quality Insight: Wrap raw user input and set persona to mitigate injection risks
+    const safePrompt = `Please answer the following financial market query. Only provide insights related to finance, investing, or economics. If the query is off-topic, decline gracefully.\n\nUser Query: "${query}"`;
+
     try {
         // AI Quality Insight: Wrap in timeout to prevent hanging UI
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: query,
+            contents: safePrompt,
             config: {
+                systemInstruction: "You are an expert financial analyst focused on African markets.",
                 tools: [{ googleSearch: {} }],
             },
         }), 8000);
