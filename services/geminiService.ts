@@ -372,10 +372,13 @@ export const getGroundedInsight = async (query: string): Promise<GroundedInsight
 
     try {
         // AI Quality Insight: Wrap in timeout to prevent hanging UI
+        // AI Quality Insight: Use template and systemInstruction to mitigate prompt injection from raw user query
+        const prompt = `Please answer the following query using the googleSearch tool: "${query}"`;
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: query,
+            contents: prompt,
             config: {
+                systemInstruction: "You are a professional financial analyst for a Nigerian asset management firm. You must only answer questions related to finance, investing, the stock market, or the economy. If the query is off-topic, politely decline to answer.",
                 tools: [{ googleSearch: {} }],
             },
         }), 8000);
