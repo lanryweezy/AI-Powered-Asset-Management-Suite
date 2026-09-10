@@ -10,6 +10,9 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "mock_api_key" });
 
 const useMock = !process.env.API_KEY || process.env.API_KEY === "mock_api_key";
 
+// AI Quality Insight: Centralize system prompt to ensure consistent persona, role definition, and ease of versioning
+const FINAI_SYSTEM_PROMPT = 'You are a helpful AI assistant for a financial asset management platform focused on the Nigerian market. Your name is "FinAI". Be concise and professional. You can answer questions about portfolio data, market trends, and general financial concepts related to Nigeria.';
+
 // AI Quality Insight: Validate array structure and item types to prevent React crashes
 const isArrayOfStrings = (value: any): value is string[] => {
     return Array.isArray(value) && value.every(item => typeof item === 'string');
@@ -216,7 +219,7 @@ export const startChat = (): Chat => {
     return ai.chats.create({
         model: 'gemini-2.5-flash',
         config: {
-            systemInstruction: 'You are a helpful AI assistant for a financial asset management platform focused on the Nigerian market. Your name is "FinAI". Be concise and professional. You can answer questions about portfolio data, market trends, and general financial concepts related to Nigeria.',
+            systemInstruction: FINAI_SYSTEM_PROMPT,
         }
     });
 };
@@ -370,12 +373,17 @@ export const getGroundedInsight = async (query: string): Promise<GroundedInsight
         });
     }
 
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly define the persona using systemInstruction
+    // to mitigate prompt injection risks and prevent off-topic responses.
+    const prompt = `Respond to this query using current market information: "${query}"`;
+
     try {
         // AI Quality Insight: Wrap in timeout to prevent hanging UI
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
-            contents: query,
+            contents: prompt,
             config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
                 tools: [{ googleSearch: {} }],
             },
         }), 8000);
