@@ -163,16 +163,35 @@ export const generateReportSummary = async (clientName: string, reportType: stri
         return Promise.resolve(`This summary for **${clientName}**'s **${reportType}** for the period of **${reportingPeriod}** highlights a period of steady growth. The portfolio saw a significant uptick in the Telecommunications sector, driven by MTNN's strong performance. While the Industrials sector faced minor headwinds, the overall portfolio remains well-positioned for future growth. Our strategy of maintaining a diversified allocation across key sectors of the Nigerian economy continues to yield positive results. We remain optimistic about the upcoming quarter.`);
     }
 
-    const prompt = `You are a professional financial advisor for a Nigerian asset management firm. Your client's name is ${clientName}.
-    You are writing a summary for their "${reportType}" for the period "${reportingPeriod}".
-    Based on their portfolio, which consists of these assets: ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, change: a.change, sector: a.sector })))}, please write a brief, professional, and encouraging summary for the client.
-    Keep it to 3-4 sentences. Use markdown for bolding key terms.`;
+    // AI Quality Insight: Wrap raw user input in XML tags and explicitly set systemInstruction to mitigate prompt injection.
+    const prompt = `You are a professional financial advisor for a Nigerian asset management firm. Please write a brief, professional, and encouraging summary for the following client report:
+
+<client_name>
+${clientName}
+</client_name>
+
+<report_type>
+${reportType}
+</report_type>
+
+<reporting_period>
+${reportingPeriod}
+</reporting_period>
+
+<portfolio_assets>
+${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, change: a.change, sector: a.sector })))}
+</portfolio_assets>
+
+Keep it to 3-4 sentences. Use markdown for bolding key terms.`;
 
     try {
         // AI Quality Insight: Wrap in timeout to prevent hanging UI
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
+            config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
+            }
         }), 10000);
         return response.text;
     } catch (error) {

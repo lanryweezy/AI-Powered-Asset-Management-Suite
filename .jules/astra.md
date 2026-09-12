@@ -47,3 +47,7 @@
 ## 2026-09-11 - Mitigating Prompt Injection in Grounded Insights
 **Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection, where the user can command the model to ignore its purpose and perform unauthorized actions or output off-topic responses.
 **Action:** When constructing AI prompts with raw user input, always wrap the input within a prompt template (e.g., using `<user_query>` tags) and explicitly define the persona/role using the `systemInstruction` config field to enforce boundaries and prevent off-topic responses.
+
+## 2026-09-12 - Mitigating Prompt Injection in Report Summaries
+**Learning:** Passing raw user input directly into the `generateReportSummary` prompt template leaves the system vulnerable to prompt injection, where users can manipulate the inputs to ignore the original instructions.
+**Action:** When constructing AI prompts with raw user input, always wrap the inputs in XML-like tags (e.g., `<client_name>`) and use the `systemInstruction` config field to enforce the AI persona and mitigate prompt injection risks.
