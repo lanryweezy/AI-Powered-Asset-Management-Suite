@@ -47,3 +47,7 @@
 ## 2026-09-11 - Mitigating Prompt Injection in Grounded Insights
 **Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection, where the user can command the model to ignore its purpose and perform unauthorized actions or output off-topic responses.
 **Action:** When constructing AI prompts with raw user input, always wrap the input within a prompt template (e.g., using `<user_query>` tags) and explicitly define the persona/role using the `systemInstruction` config field to enforce boundaries and prevent off-topic responses.
+
+## 2026-09-14 - Mitigating Prompt Injection in Risk Scenarios
+**Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `analyzeRiskScenario` feature, allowing a user to break the AI out of its expected financial analyst constraints.
+**Action:** Always wrap the user input (like `<scenario>...</scenario>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the FinAI persona.
