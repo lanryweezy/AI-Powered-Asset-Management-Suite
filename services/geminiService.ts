@@ -260,8 +260,12 @@ export const analyzeRiskScenario = async (assets: PortfolioAsset[], scenario: st
         });
     }
 
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
     const prompt = `Analyze the potential impact of the following economic scenario on an investment portfolio.
-    **Scenario:** "${scenario}"
+    **Scenario:**
+    <scenario>
+    ${scenario}
+    </scenario>
     **Portfolio:** ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, sector: a.sector, volatility: a.volatility, marketCorrelation: a.marketCorrelation })))}
     
     Provide a quantitative estimate of the portfolio's percentage value change and a brief qualitative summary explaining which assets would be most affected and why.`;
@@ -287,6 +291,7 @@ export const analyzeRiskScenario = async (assets: PortfolioAsset[], scenario: st
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
