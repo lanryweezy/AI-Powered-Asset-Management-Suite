@@ -51,3 +51,6 @@
 ## 2026-09-14 - Mitigating Prompt Injection in Risk Scenarios
 **Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `analyzeRiskScenario` feature, allowing a user to break the AI out of its expected financial analyst constraints.
 **Action:** Always wrap the user input (like `<scenario>...</scenario>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the FinAI persona.
+## 2025-02-28 - Mitigating Prompt Injection in Compliance Remediation
+**Learning:** Passing raw user input (`check.rule` and `check.details`) directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `getComplianceRemediation` feature, allowing a user to break the AI out of its expected compliance expert constraints.
+**Action:** Always wrap the user input (like `<rule>...</rule>` and `<details>...</details>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the FinAI persona.
