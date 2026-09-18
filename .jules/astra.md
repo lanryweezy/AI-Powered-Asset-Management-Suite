@@ -51,3 +51,6 @@
 ## 2026-09-14 - Mitigating Prompt Injection in Risk Scenarios
 **Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `analyzeRiskScenario` feature, allowing a user to break the AI out of its expected financial analyst constraints.
 **Action:** Always wrap the user input (like `<scenario>...</scenario>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the FinAI persona.
+## 2024-05-24 - [Explicit XML Boundaries in Prompts]
+**Learning:** Wrapping raw user inputs in explicit XML boundaries (like `<report_details>`) improves prompt robustness against injection and clarifies instructions to the model without altering existing behavior. Overriding inline persona with a generic config can unexpectedly change tone.
+**Action:** Use XML boundaries to segregate user input from instructions. Preserve existing explicit persona definitions when doing so.
