@@ -99,7 +99,8 @@ export const getAnalyticsInsight = async (chartName: string, data: any): Promise
      if (useMock) {
         return Promise.resolve("This is a mock analysis. The model indicates a strong positive trend based on the provided data, with key indicators pointing towards sustained growth. However, watch for potential market corrections in the next quarter.");
     }
-    const prompt = `You are a financial analyst. Provide a brief, insightful summary for a chart titled "${chartName}". The data for the chart is: ${JSON.stringify(data)}. Keep it concise and professional.`;
+    // AI Quality Insight: Wrap raw user input in XML boundaries to mitigate prompt injection risks and enforce persona limits.
+    const prompt = `You are a financial analyst. Provide a brief, insightful summary for a chart titled <chart_name>${chartName}</chart_name>. The data for the chart is: ${JSON.stringify(data)}. Keep it concise and professional.`;
     
     try {
         // AI Quality Insight: Wrap in timeout to prevent hanging UI
@@ -139,9 +140,10 @@ export const getComplianceRemediation = async (check: ComplianceCheck): Promise<
         return Promise.resolve("### Remediation Plan:\n\n**1. Identify Overweight Assets:**\n   - Review the portfolio to identify the specific unquoted securities causing the breach of the 5% limit.\n\n**2. Develop a Divestment Strategy:**\n   - Formulate a plan to reduce the holding of these assets below the 5% threshold. This may involve partial or full liquidation.\n\n**3. Rebalance the Portfolio:**\n   - Reinvest the proceeds from the divestment into compliant assets to ensure the portfolio adheres to all PENCOM guidelines.");
     }
 
+    // AI Quality Insight: Wrap raw user input in XML boundaries to mitigate prompt injection risks and enforce persona limits.
     const prompt = `As a compliance expert for a Nigerian asset management firm, provide a concise, actionable remediation plan for the following failed compliance check.
-    - **Failed Rule:** "${check.rule}"
-    - **Details:** "${check.details}"
+    - **Failed Rule:** <failed_rule>${check.rule}</failed_rule>
+    - **Details:** <details>${check.details}</details>
     
     Structure your response with clear, numbered steps. Use markdown for formatting.`;
 
@@ -163,8 +165,9 @@ export const generateReportSummary = async (clientName: string, reportType: stri
         return Promise.resolve(`This summary for **${clientName}**'s **${reportType}** for the period of **${reportingPeriod}** highlights a period of steady growth. The portfolio saw a significant uptick in the Telecommunications sector, driven by MTNN's strong performance. While the Industrials sector faced minor headwinds, the overall portfolio remains well-positioned for future growth. Our strategy of maintaining a diversified allocation across key sectors of the Nigerian economy continues to yield positive results. We remain optimistic about the upcoming quarter.`);
     }
 
-    const prompt = `You are a professional financial advisor for a Nigerian asset management firm. Your client's name is ${clientName}.
-    You are writing a summary for their "${reportType}" for the period "${reportingPeriod}".
+    // AI Quality Insight: Wrap raw user input in XML boundaries to mitigate prompt injection risks and enforce persona limits.
+    const prompt = `You are a professional financial advisor for a Nigerian asset management firm. Your client's name is <client_name>${clientName}</client_name>.
+    You are writing a summary for their <report_type>${reportType}</report_type> for the period <reporting_period>${reportingPeriod}</reporting_period>.
     Based on their portfolio, which consists of these assets: ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, change: a.change, sector: a.sector })))}, please write a brief, professional, and encouraging summary for the client.
     Keep it to 3-4 sentences. Use markdown for bolding key terms.`;
 
