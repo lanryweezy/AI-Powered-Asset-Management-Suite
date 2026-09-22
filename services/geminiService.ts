@@ -163,8 +163,22 @@ export const generateReportSummary = async (clientName: string, reportType: stri
         return Promise.resolve(`This summary for **${clientName}**'s **${reportType}** for the period of **${reportingPeriod}** highlights a period of steady growth. The portfolio saw a significant uptick in the Telecommunications sector, driven by MTNN's strong performance. While the Industrials sector faced minor headwinds, the overall portfolio remains well-positioned for future growth. Our strategy of maintaining a diversified allocation across key sectors of the Nigerian economy continues to yield positive results. We remain optimistic about the upcoming quarter.`);
     }
 
-    const prompt = `You are a professional financial advisor for a Nigerian asset management firm. Your client's name is ${clientName}.
-    You are writing a summary for their "${reportType}" for the period "${reportingPeriod}".
+    // AI Quality Insight: Wrap raw user input in explicit XML boundaries to mitigate prompt injection risks while preserving the specific inline persona.
+    const prompt = `You are a professional financial advisor for a Nigerian asset management firm. Your client's name is:
+    <client_name>
+    ${clientName}
+    </client_name>
+
+    You are writing a summary for their report of type:
+    <report_type>
+    ${reportType}
+    </report_type>
+
+    For the period:
+    <reporting_period>
+    ${reportingPeriod}
+    </reporting_period>
+
     Based on their portfolio, which consists of these assets: ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, change: a.change, sector: a.sector })))}, please write a brief, professional, and encouraging summary for the client.
     Keep it to 3-4 sentences. Use markdown for bolding key terms.`;
 
