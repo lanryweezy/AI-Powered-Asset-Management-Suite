@@ -485,11 +485,14 @@ export const getClientRiskProfileSummary = async (profile: RiskProfile): Promise
         return Promise.resolve(`This client has a **${profile.riskAppetite}** risk tolerance with a focus on **${profile.investmentGoals}** over a **${profile.investmentHorizon}** horizon. The behavioral score of **${profile.behavioralRiskScore.toFixed(2)}** suggests a disciplined investor, but they may be susceptible to loss aversion during market downturns. A balanced portfolio with a mix of equities and fixed income is recommended.`);
     }
 
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
     const prompt = `You are a financial advisor. Analyze the following client risk profile and provide a concise, professional summary (2-3 sentences).
+    <client_profile>
     - Investment Goals: ${profile.investmentGoals}
     - Risk Appetite: ${profile.riskAppetite}
     - Investment Horizon: ${profile.investmentHorizon}
     - Behavioral Risk Score (0=calm, 1=panicked): ${profile.behavioralRiskScore.toFixed(2)}
+    </client_profile>
     
     Synthesize this into a professional summary for an advisor to quickly understand the client's profile. Use markdown for bolding.`;
     
@@ -498,6 +501,9 @@ export const getClientRiskProfileSummary = async (profile: RiskProfile): Promise
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
+            config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
+            }
         }), 10000);
         return response.text;
     } catch(error) {
