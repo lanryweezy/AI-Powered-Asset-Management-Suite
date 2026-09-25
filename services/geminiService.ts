@@ -139,9 +139,12 @@ export const getComplianceRemediation = async (check: ComplianceCheck): Promise<
         return Promise.resolve("### Remediation Plan:\n\n**1. Identify Overweight Assets:**\n   - Review the portfolio to identify the specific unquoted securities causing the breach of the 5% limit.\n\n**2. Develop a Divestment Strategy:**\n   - Formulate a plan to reduce the holding of these assets below the 5% threshold. This may involve partial or full liquidation.\n\n**3. Rebalance the Portfolio:**\n   - Reinvest the proceeds from the divestment into compliant assets to ensure the portfolio adheres to all PENCOM guidelines.");
     }
 
-    const prompt = `As a compliance expert for a Nigerian asset management firm, provide a concise, actionable remediation plan for the following failed compliance check.
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
+    const prompt = `Provide a concise, actionable remediation plan for the following failed compliance check.
+    <compliance_check>
     - **Failed Rule:** "${check.rule}"
     - **Details:** "${check.details}"
+    </compliance_check>
     
     Structure your response with clear, numbered steps. Use markdown for formatting.`;
 
@@ -150,6 +153,9 @@ export const getComplianceRemediation = async (check: ComplianceCheck): Promise<
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
+            config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
+            }
         }), 10000);
         return response.text;
     } catch (error) {
