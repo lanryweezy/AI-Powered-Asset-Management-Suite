@@ -57,3 +57,7 @@
 ## 2026-10-01 - Mitigating Prompt Injection in Client Risk Profiles
 **Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `getClientRiskProfileSummary` feature, allowing a user to break the AI out of its expected financial advisor constraints by providing malicious input in fields like `investmentGoals`.
 **Action:** Always wrap the user input (like `<client_profile>...</client_profile>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the AI persona boundaries and prevent prompt injection.
+
+## 2026-09-25 - Mitigating Prompt Injection in Compliance Checks
+**Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `getComplianceRemediation` feature, where inputs like `rule` or `details` could be manipulated to bypass the intended task and generate off-topic or unauthorized responses.
+**Action:** Always wrap the user input (e.g., `<compliance_check>...</compliance_check>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the AI persona boundaries and safely encapsulate the data.
