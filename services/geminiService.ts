@@ -99,13 +99,24 @@ export const getAnalyticsInsight = async (chartName: string, data: any): Promise
      if (useMock) {
         return Promise.resolve("This is a mock analysis. The model indicates a strong positive trend based on the provided data, with key indicators pointing towards sustained growth. However, watch for potential market corrections in the next quarter.");
     }
-    const prompt = `You are a financial analyst. Provide a brief, insightful summary for a chart titled "${chartName}". The data for the chart is: ${JSON.stringify(data)}. Keep it concise and professional.`;
+
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
+    const prompt = `You are a financial analyst. Provide a brief, insightful summary for the following chart data. Keep it concise and professional.
+    <chart_name>
+    ${chartName}
+    </chart_name>
+    <chart_data>
+    ${JSON.stringify(data)}
+    </chart_data>`;
     
     try {
         // AI Quality Insight: Wrap in timeout to prevent hanging UI
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
+            config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
+            }
         }), 10000);
         return response.text;
     } catch(error) {
