@@ -60,3 +60,7 @@
 ## 2026-09-26 - Mitigating Prompt Injection in Compliance Remediation
 **Learning:** Passing raw input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `getComplianceRemediation` feature, allowing a user to break the AI out of its expected compliance expert constraints by providing malicious input in fields like `rule` or `details`.
 **Action:** Always wrap the user input (like `<compliance_check>...</compliance_check>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the AI persona boundaries and prevent prompt injection.
+
+## 2025-03-05 - Prompt Injection and Persona Boundaries
+**Learning:** Raw user inputs embedded directly into prompt strings can cause prompt injection. Additionally, missing the system prompt in the API call allows models to hallucinate personas. Combining XML boundaries for inputs and API-level `systemInstruction` enforces strict behavior.
+**Action:** Wrap user inputs in explicit XML boundaries (e.g., `<chart_name>`) and set `systemInstruction: FINAI_SYSTEM_PROMPT` in the configuration for `ai.models.generateContent` calls.
