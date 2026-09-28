@@ -64,3 +64,6 @@
 ## 2025-03-05 - Prompt Injection and Persona Boundaries
 **Learning:** Raw user inputs embedded directly into prompt strings can cause prompt injection. Additionally, missing the system prompt in the API call allows models to hallucinate personas. Combining XML boundaries for inputs and API-level `systemInstruction` enforces strict behavior.
 **Action:** Wrap user inputs in explicit XML boundaries (e.g., `<chart_name>`) and set `systemInstruction: FINAI_SYSTEM_PROMPT` in the configuration for `ai.models.generateContent` calls.
+## 2024-06-25 - Prevent Prompt Injection in Portfolio Optimization
+**Learning:** Raw JSON strings of user assets embedded directly in the main prompt string create prompt injection vulnerabilities, leading to potentially confused or manipulated model outputs in the optimization feature. Additionally, omitting `systemInstruction` fails to enforce the "FinAI" persona for this endpoint.
+**Action:** Wrap serialized dynamic user data in explicit XML boundaries (e.g., `<portfolio>`) and pass `systemInstruction: FINAI_SYSTEM_PROMPT` in the `generateContent` configuration for every prompt utilizing user-defined data structures.
