@@ -790,11 +790,14 @@ export const getModelPortfolioAnalysis = async (model: ModelPortfolio): Promise<
         });
     }
 
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
     const prompt = `You are a quantitative analyst. Analyze the following model portfolio based on its constituent weights and risk level. Provide a professional analysis.
+    <model_portfolio>
     - Model Name: ${model.name}
     - Description: ${model.description}
     - Risk Level: ${model.riskLevel}
     - Constituents: ${JSON.stringify(model.constituents)}
+    </model_portfolio>
     
     Provide your analysis in a structured JSON format.`;
 
@@ -816,6 +819,7 @@ export const getModelPortfolioAnalysis = async (model: ModelPortfolio): Promise<
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
