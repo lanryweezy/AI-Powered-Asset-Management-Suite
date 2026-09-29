@@ -37,7 +37,11 @@ export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promis
         ]);
     }
 
-    const prompt = `Analyze the following investment portfolio of Nigerian stocks and provide optimization suggestions. For each stock, suggest whether to 'BUY', 'SELL', or 'HOLD', provide a brief reasoning relevant to the Nigerian market, and a confidence score between 0 and 1. Portfolio: ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, allocation: a.allocation })))}`;
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
+    const prompt = `Analyze the following investment portfolio of Nigerian stocks and provide optimization suggestions. For each stock, suggest whether to 'BUY', 'SELL', or 'HOLD', provide a brief reasoning relevant to the Nigerian market, and a confidence score between 0 and 1.
+    <portfolio>
+    ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, allocation: a.allocation })))}
+    </portfolio>`;
 
     const responseSchema = {
         type: Type.ARRAY,
@@ -59,6 +63,7 @@ export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promis
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
