@@ -67,3 +67,6 @@
 ## 2024-06-25 - Prevent Prompt Injection in Portfolio Optimization
 **Learning:** Raw JSON strings of user assets embedded directly in the main prompt string create prompt injection vulnerabilities, leading to potentially confused or manipulated model outputs in the optimization feature. Additionally, omitting `systemInstruction` fails to enforce the "FinAI" persona for this endpoint.
 **Action:** Wrap serialized dynamic user data in explicit XML boundaries (e.g., `<portfolio>`) and pass `systemInstruction: FINAI_SYSTEM_PROMPT` in the `generateContent` configuration for every prompt utilizing user-defined data structures.
+## 2025-03-06 - Mitigating Prompt Injection in Portfolio Doctor
+**Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `getPortfolioDoctorAnalysis` feature, allowing a user to break the AI out of its expected financial analyst constraints by manipulating the JSON data representing portfolio assets.
+**Action:** Always wrap the user input (like `<portfolio>...</portfolio>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the FinAI persona.
