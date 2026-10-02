@@ -89,6 +89,15 @@ export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promis
             ) {
                 throw new Error("AI output array contains invalid items");
             }
+
+            // AI Quality Insight: Enforce bounds checking and normalize model hallucinated percentages (0-100 to 0-1)
+            if (item.confidenceScore > 1 && item.confidenceScore <= 100) {
+                item.confidenceScore = item.confidenceScore / 100;
+            } else if (item.confidenceScore > 1) {
+                item.confidenceScore = 1;
+            } else if (item.confidenceScore < 0) {
+                item.confidenceScore = 0;
+            }
         }
 
         return suggestions as OptimizationSuggestion[];

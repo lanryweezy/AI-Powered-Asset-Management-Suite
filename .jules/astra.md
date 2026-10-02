@@ -67,3 +67,6 @@
 ## 2024-06-25 - Prevent Prompt Injection in Portfolio Optimization
 **Learning:** Raw JSON strings of user assets embedded directly in the main prompt string create prompt injection vulnerabilities, leading to potentially confused or manipulated model outputs in the optimization feature. Additionally, omitting `systemInstruction` fails to enforce the "FinAI" persona for this endpoint.
 **Action:** Wrap serialized dynamic user data in explicit XML boundaries (e.g., `<portfolio>`) and pass `systemInstruction: FINAI_SYSTEM_PROMPT` in the `generateContent` configuration for every prompt utilizing user-defined data structures.
+## 2026-10-02 - Normalizing Model Hallucinated Percentages
+**Learning:** Models sometimes hallucinate and output percentages (e.g., 0-100) instead of the requested 0-1 bounded values, particularly for confidence scores. If the UI logic expects a 0-1 scale, a value like `80` can break rendering or logic entirely.
+**Action:** When parsing numeric AI outputs with expected ranges, explicitly enforce bounds checking. If a model outputs a percentage-like value (e.g., >1 and <=100), gracefully normalize it by dividing by 100, and clamp out-of-bounds values appropriately to prevent UI crashes.
