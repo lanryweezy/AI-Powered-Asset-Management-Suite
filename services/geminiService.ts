@@ -89,6 +89,16 @@ export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promis
             ) {
                 throw new Error("AI output array contains invalid items");
             }
+
+            // AI Quality Insight: Range validation for confidenceScore.
+            // If the model hallucinates a 0-100 percentage instead of 0-1 ratio, gracefully normalize it.
+            // Otherwise, strictly clamp to 0-1 range to prevent UI issues.
+            if (item.confidenceScore < 0 || item.confidenceScore > 1) {
+                const normalized = (item.confidenceScore > 1 && item.confidenceScore <= 100)
+                    ? item.confidenceScore / 100
+                    : item.confidenceScore;
+                item.confidenceScore = Math.max(0, Math.min(1, normalized));
+            }
         }
 
         return suggestions as OptimizationSuggestion[];
