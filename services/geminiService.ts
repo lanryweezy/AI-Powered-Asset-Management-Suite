@@ -258,13 +258,21 @@ export const getRiskSummary = async (assets: PortfolioAsset[]): Promise<string> 
     if (useMock) {
         return Promise.resolve("The portfolio's current risk profile is moderate, primarily driven by a significant allocation to the Financials sector, which exhibits higher volatility. The Telecommunications holding (MTNN) provides a stabilizing effect due to its lower market correlation. Diversification into less correlated sectors could further mitigate overall risk.");
     }
-    const prompt = `You are a financial risk analyst. Provide a brief, qualitative summary of the risk profile for the following investment portfolio. Highlight the main drivers of risk (e.g., sector concentration, high volatility assets) and any mitigating factors. Portfolio: ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, allocation: a.allocation, riskScore: a.riskScore, volatility: a.volatility, sector: a.sector })))}. Keep it concise (2-4 sentences) and professional.`;
+
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
+    const prompt = `You are a financial risk analyst. Provide a brief, qualitative summary of the risk profile for the following investment portfolio. Highlight the main drivers of risk (e.g., sector concentration, high volatility assets) and any mitigating factors. Keep it concise (2-4 sentences) and professional.
+    <portfolio>
+    ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, allocation: a.allocation, riskScore: a.riskScore, volatility: a.volatility, sector: a.sector })))}
+    </portfolio>`;
     
     try {
         // AI Quality Insight: Wrap in timeout to prevent hanging UI
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
+            config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
+            }
         }), 10000);
         return response.text;
     } catch(error) {
