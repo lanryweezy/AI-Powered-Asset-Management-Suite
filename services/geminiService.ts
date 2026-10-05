@@ -766,9 +766,12 @@ export const compareStocks = async (stocks: Stock[]): Promise<string> => {
         return Promise.resolve(`While **${stock1}** offers a more attractive dividend yield and a lower P/E ratio, indicating potential value, **${stock2}** has demonstrated stronger recent price performance and operates in a sector with higher growth forecasts. The choice depends on whether the investment objective is value and income (${stock1}) or growth (${stock2}).`);
     }
 
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
     const prompt = `You are a financial analyst. Concisely compare the following Nigerian stocks based on the provided data. Highlight their key differences and which might be preferable for different investment styles (e.g., value vs. growth).
     
-    Stock Data: ${JSON.stringify(stocks.map(s => ({ ticker: s.ticker, sector: s.sector, peRatio: s.peRatio, dividendYield: s.dividendYield, change: s.change })))}
+    <stock_data>
+    ${JSON.stringify(stocks.map(s => ({ ticker: s.ticker, sector: s.sector, peRatio: s.peRatio, dividendYield: s.dividendYield, change: s.change })))}
+    </stock_data>
     
     Keep the summary to 2-3 sentences. Use markdown for bolding tickers.`;
 
@@ -777,6 +780,9 @@ export const compareStocks = async (stocks: Stock[]): Promise<string> => {
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
+            config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
+            }
         }), 10000);
         return response.text;
     } catch (error) {

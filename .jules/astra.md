@@ -75,3 +75,7 @@
 ## 2026-10-04 - Mitigating Prompt Injection in Risk Summary
 **Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `getRiskSummary` feature. Additionally, omitting `systemInstruction` fails to enforce the "FinAI" persona for this endpoint.
 **Action:** Wrap the user input (like `<portfolio>...</portfolio>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the AI persona boundaries and prevent prompt injection.
+
+## 2026-10-06 - Mitigating Prompt Injection in Stock Comparison
+**Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `compareStocks` feature. Additionally, omitting `systemInstruction` fails to enforce the "FinAI" persona for this endpoint.
+**Action:** Wrap the user input (like `<stock_data>...</stock_data>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the AI persona boundaries and prevent prompt injection.
