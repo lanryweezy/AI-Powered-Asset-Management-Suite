@@ -144,19 +144,27 @@ export const getMarketOverview = async (assets: PortfolioAsset[]): Promise<strin
     if (useMock) {
         return Promise.resolve("The Nigerian stock market shows moderate gains today, driven by strong performance in the telecommunications sector, particularly MTNN. Financial stocks like GTCO remain stable despite some profit-taking. Investors are closely watching inflation figures to be released later this week.");
     }
-    const prompt = `You are a financial analyst. Provide a brief, insightful summary of the current Nigerian stock market, especially concerning the following assets: ${assets.map(a => a.ticker).join(', ')}. Mention any recent trends or news affecting these stocks or their sectors. Keep it concise (2-3 sentences) and professional for a dashboard market overview.`;
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
+    const prompt = `You are a financial analyst. Provide a brief, insightful summary of the current Nigerian stock market, especially concerning the following assets:
+    <assets>
+    ${assets.map(a => a.ticker).join(', ')}
+    </assets>
+    Mention any recent trends or news affecting these stocks or their sectors. Keep it concise (2-3 sentences) and professional for a dashboard market overview.`;
     
     try {
         // AI Quality Insight: Wrap in timeout to prevent hanging UI
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
+            config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
+            }
         }), 8000);
-        return response.text;
+        return response.text || "Could not load AI-powered market overview.";
     } catch(error) {
         console.error(`Error fetching market overview:`, error);
         // AI Quality Insight: Return graceful fallback instead of breaking UI
-        return "Could not load AI-powered market overview."
+        return "Could not load AI-powered market overview.";
     }
 };
 
@@ -766,9 +774,12 @@ export const compareStocks = async (stocks: Stock[]): Promise<string> => {
         return Promise.resolve(`While **${stock1}** offers a more attractive dividend yield and a lower P/E ratio, indicating potential value, **${stock2}** has demonstrated stronger recent price performance and operates in a sector with higher growth forecasts. The choice depends on whether the investment objective is value and income (${stock1}) or growth (${stock2}).`);
     }
 
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
     const prompt = `You are a financial analyst. Concisely compare the following Nigerian stocks based on the provided data. Highlight their key differences and which might be preferable for different investment styles (e.g., value vs. growth).
     
-    Stock Data: ${JSON.stringify(stocks.map(s => ({ ticker: s.ticker, sector: s.sector, peRatio: s.peRatio, dividendYield: s.dividendYield, change: s.change })))}
+    <stock_data>
+    ${JSON.stringify(stocks.map(s => ({ ticker: s.ticker, sector: s.sector, peRatio: s.peRatio, dividendYield: s.dividendYield, change: s.change })))}
+    </stock_data>
     
     Keep the summary to 2-3 sentences. Use markdown for bolding tickers.`;
 
@@ -777,8 +788,11 @@ export const compareStocks = async (stocks: Stock[]): Promise<string> => {
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
+            config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
+            }
         }), 10000);
-        return response.text;
+        return response.text || "Stock comparison is currently unavailable. Please try again later.";
     } catch (error) {
         console.error("Error comparing stocks:", error);
         // AI Quality Insight: Return graceful fallback instead of throwing error causing silent UI failure
