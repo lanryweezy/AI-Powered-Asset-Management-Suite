@@ -75,3 +75,7 @@
 ## 2026-10-04 - Mitigating Prompt Injection in Risk Summary
 **Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `getRiskSummary` feature. Additionally, omitting `systemInstruction` fails to enforce the "FinAI" persona for this endpoint.
 **Action:** Wrap the user input (like `<portfolio>...</portfolio>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the AI persona boundaries and prevent prompt injection.
+
+## 2023-10-26 - [Robust Prompts & Graceful Degradation]
+**Learning:** Wrapping raw user inputs in XML tags effectively mitigates prompt injection risks. Also, setting explicit fallbacks on string returning methods (like `response.text || "fallback"`) prevents silent UI failures if the AI response is empty.
+**Action:** When working on similar API routes, always use XML tags for input mapping and include fallback strings on text fields to prevent empty renders.
