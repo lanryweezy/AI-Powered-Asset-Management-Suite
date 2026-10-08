@@ -144,13 +144,21 @@ export const getMarketOverview = async (assets: PortfolioAsset[]): Promise<strin
     if (useMock) {
         return Promise.resolve("The Nigerian stock market shows moderate gains today, driven by strong performance in the telecommunications sector, particularly MTNN. Financial stocks like GTCO remain stable despite some profit-taking. Investors are closely watching inflation figures to be released later this week.");
     }
-    const prompt = `You are a financial analyst. Provide a brief, insightful summary of the current Nigerian stock market, especially concerning the following assets: ${assets.map(a => a.ticker).join(', ')}. Mention any recent trends or news affecting these stocks or their sectors. Keep it concise (2-3 sentences) and professional for a dashboard market overview.`;
+    // AI Quality Insight: Wrap user data in XML boundaries to prevent prompt injection and use FINAI_SYSTEM_PROMPT to enforce persona limits.
+    const prompt = `You are a financial analyst. Provide a brief, insightful summary of the current Nigerian stock market, especially concerning the following assets:
+    <assets>
+    ${assets.map(a => a.ticker).join(', ')}
+    </assets>
+    Mention any recent trends or news affecting these stocks or their sectors. Keep it concise (2-3 sentences) and professional for a dashboard market overview.`;
     
     try {
         // AI Quality Insight: Wrap in timeout to prevent hanging UI
         const response = await withTimeout(ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: prompt,
+            config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
+            }
         }), 8000);
         return response.text;
     } catch(error) {

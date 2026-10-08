@@ -79,3 +79,6 @@
 ## 2026-10-06 - Mitigating Prompt Injection in Stock Comparison
 **Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `compareStocks` feature. Additionally, omitting `systemInstruction` fails to enforce the "FinAI" persona for this endpoint.
 **Action:** Wrap the user input (like `<stock_data>...</stock_data>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the AI persona boundaries and prevent prompt injection.
+## 2026-10-08 - Prompt Injection Prevention
+**Learning:** Raw arrays of user data (like portfolios) injected directly into prompts pose an injection risk, as the model may misinterpret data contents as instructions.
+**Action:** Always wrap user-provided data arrays within explicit XML tags (e.g., `<assets>`) in the prompt string, and enforce persona boundaries via the `systemInstruction: FINAI_SYSTEM_PROMPT` config option.
