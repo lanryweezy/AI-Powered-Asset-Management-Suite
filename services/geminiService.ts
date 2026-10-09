@@ -637,8 +637,11 @@ export const getPortfolioDoctorAnalysis = async (assets: PortfolioAsset[]): Prom
         });
     }
 
-    const prompt = `You are an AI Portfolio Doctor. Analyze the following investment portfolio and provide a detailed health check. The portfolio is for a client with a 'Moderate' risk tolerance.
-    Portfolio: ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, allocation: a.allocation, sector: a.sector, riskScore: a.riskScore })))}
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
+    const prompt = `Analyze the following investment portfolio and provide a detailed health check. The portfolio is for a client with a 'Moderate' risk tolerance.
+    <portfolio>
+    ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, allocation: a.allocation, sector: a.sector, riskScore: a.riskScore })))}
+    </portfolio>
     
     Based on this data, provide a structured analysis in JSON format.`;
 
@@ -673,6 +676,7 @@ export const getPortfolioDoctorAnalysis = async (assets: PortfolioAsset[]): Prom
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
