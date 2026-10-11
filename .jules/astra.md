@@ -86,3 +86,7 @@
 ## 2026-10-09 - Mitigating Prompt Injection in Model Portfolio Analysis
 **Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `getModelPortfolioAnalysis` feature. Malicious input in `model.name` or `model.description` could alter the AI's intended behavior. Additionally, omitting `systemInstruction` fails to enforce the "FinAI" persona constraints.
 **Action:** Always wrap the user input (like `<model_portfolio>...</model_portfolio>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the AI persona boundaries and cleanly separate instructions from data.
+
+## 2026-10-10 - Mitigating Prompt Injection in SWOT Analysis
+**Learning:** Passing raw user input directly as the `contents` of an AI API call leaves the system vulnerable to prompt injection in the `getStockSWOT` feature. Malicious input in `ticker` could alter the AI's intended behavior. Additionally, omitting `systemInstruction` across various endpoints (like `getMarketNews`, `getAnomalyDetection`, `getInvestmentIdeas`, and `getStockSWOT`) fails to enforce the "FinAI" persona constraints, allowing models to hallucinate personas and stray off-topic.
+**Action:** Always wrap the user input (like `<ticker>...</ticker>`) and add `systemInstruction: FINAI_SYSTEM_PROMPT` to the API configuration to strictly enforce the AI persona boundaries, cleanly separate instructions from data, and prevent off-topic responses across all endpoints.

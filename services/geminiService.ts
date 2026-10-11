@@ -391,6 +391,7 @@ export const getMarketNews = async (): Promise<GroundedInsight> => {
         });
     }
 
+    // AI Quality Insight: Explicitly set systemInstruction to enforce persona limits and prevent off-topic responses.
     const prompt = `Provide a concise summary (3-4 sentences) of the latest news and key trends in the Nigerian stock market for today.`;
 
     try {
@@ -399,6 +400,7 @@ export const getMarketNews = async (): Promise<GroundedInsight> => {
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
                 tools: [{ googleSearch: {} }],
             },
         }), 8000);
@@ -475,6 +477,7 @@ export const getAnomalyDetection = async (): Promise<{ title: string; details: s
         });
     }
 
+    // AI Quality Insight: Explicitly set systemInstruction to enforce persona limits and prevent off-topic responses.
     const prompt = `You are an AI Sentinel monitoring a portfolio of Nigerian stocks. Detect one potential anomaly, risk, or significant event from the market. Classify its severity as 'critical', 'warning', or 'info'. Provide a short title and a one-sentence detail.`;
 
     const responseSchema = {
@@ -493,6 +496,7 @@ export const getAnomalyDetection = async (): Promise<{ title: string; details: s
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
@@ -567,6 +571,7 @@ export const getInvestmentIdeas = async (): Promise<{ title: string; reasoning: 
             tickers: ["INTERSWITCH", "PAYSTACK", "FLUTTERWAVE"],
         });
     }
+    // AI Quality Insight: Explicitly set systemInstruction to enforce persona limits and prevent off-topic responses.
     const prompt = `You are a financial analyst specializing in emerging markets. Generate one new, actionable investment theme relevant to the current Nigerian or broader African market. Provide a title, a 1-2 sentence reasoning, and suggest 2-3 representative (real or plausible) stock tickers.`;
 
     const responseSchema = {
@@ -585,6 +590,7 @@ export const getInvestmentIdeas = async (): Promise<{ title: string; reasoning: 
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
@@ -723,7 +729,12 @@ export const getStockSWOT = async (ticker: string): Promise<SWOTAnalysis> => {
         });
     }
 
-    const prompt = `You are a senior equity analyst. Provide a detailed SWOT analysis for the Nigerian company with the stock ticker: ${ticker}. For each of the four categories (Strengths, Weaknesses, Opportunities, Threats), provide exactly two distinct, concise points.`;
+    // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
+    const prompt = `You are a senior equity analyst. Provide a detailed SWOT analysis for the Nigerian company with the following stock ticker:
+    <ticker>
+    ${ticker}
+    </ticker>
+    For each of the four categories (Strengths, Weaknesses, Opportunities, Threats), provide exactly two distinct, concise points.`;
 
     const responseSchema = {
         type: Type.OBJECT,
@@ -742,6 +753,7 @@ export const getStockSWOT = async (ticker: string): Promise<SWOTAnalysis> => {
             model: "gemini-2.5-flash",
             contents: prompt,
             config: {
+                systemInstruction: FINAI_SYSTEM_PROMPT,
                 responseMimeType: "application/json",
                 responseSchema: responseSchema,
             }
