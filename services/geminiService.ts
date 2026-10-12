@@ -700,6 +700,14 @@ export const getPortfolioDoctorAnalysis = async (assets: PortfolioAsset[]): Prom
                 isArrayOfStrings(parsed.positivePoints) &&
                 isArrayOfStrings(parsed.areasForImprovement)
             ) {
+                // AI Quality Insight: Range validation for overallScore.
+                // If the model hallucinates a 0-1 ratio instead of 0-100 percentage, gracefully normalize it.
+                // Otherwise, strictly clamp to 0-100 range to prevent UI issues.
+                if (parsed.overallScore > 0 && parsed.overallScore <= 1 && !Number.isInteger(parsed.overallScore)) {
+                    parsed.overallScore *= 100;
+                }
+                parsed.overallScore = Math.max(0, Math.min(100, Math.round(parsed.overallScore)));
+
                 return parsed;
             }
             throw new Error("Invalid output format from Portfolio Doctor");
