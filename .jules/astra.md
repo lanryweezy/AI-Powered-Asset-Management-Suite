@@ -93,3 +93,7 @@
 ## 2026-10-11 - Validate Numeric Ranges for overallScore
 **Learning:** In `getPortfolioDoctorAnalysis`, the model sometimes misunderstands the requested output format for `overallScore` (a 0-100 percentage) and may hallucinate a 0-1 ratio instead. Trusting model-returned numbers directly can lead to incorrect UI rendering if bounds aren't explicitly verified.
 **Action:** Always add explicit range validation for expected numeric values (e.g., clamp `overallScore` to 0-100). For common misunderstandings (like a 0-1 ratio where a 0-100 percentage is expected), gracefully normalize the value instead of discarding the entire response.
+
+## 2026-10-15 - Prevent XSS in AI Text Outputs
+**Learning:** Raw model string outputs directly rendered using `dangerouslySetInnerHTML` expose the application to Cross-Site Scripting (XSS) vulnerabilities. An attacker could potentially prompt-inject the model to output `<script>` or other malicious HTML tags.
+**Action:** Always sanitize AI text outputs by escaping HTML characters (like `<`, `>`, and `&`) before applying any intentional formatting (like markdown bolding) and rendering via `dangerouslySetInnerHTML`.

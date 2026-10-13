@@ -4,7 +4,13 @@ import type { Chat } from '@google/genai';
 import { ChatMessage } from '../types.ts';
 
 const markdownToHtml = (text: string) => {
-    return text
+    // AI Quality Insight: Escape HTML before applying markdown to prevent XSS via dangerouslySetInnerHTML
+    const escapedText = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    return escapedText
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/`([^`]+)`/g, '<code class="bg-slate-200 dark:bg-slate-700 rounded px-1 py-0.5 text-xs">$1</code>')

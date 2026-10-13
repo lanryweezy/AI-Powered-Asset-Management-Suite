@@ -101,7 +101,12 @@ const Research: React.FC = () => {
         setComparisonSummary('');
         try {
             const result = await compareStocks(selectedStocks);
-            setComparisonSummary(result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'));
+            // AI Quality Insight: Escape HTML before applying markdown to prevent XSS via dangerouslySetInnerHTML
+            const escapedResult = result
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+            setComparisonSummary(escapedResult.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'));
         } catch (error) {
             console.error("Failed to fetch comparison:", error);
         } finally {

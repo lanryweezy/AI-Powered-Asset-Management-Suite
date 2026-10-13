@@ -15,7 +15,13 @@ interface ReportPreviewModalProps {
 
 const markdownToHtml = (text: string) => {
     if (!text) return '';
-    return text
+    // AI Quality Insight: Escape HTML before applying markdown to prevent XSS via dangerouslySetInnerHTML
+    const escapedText = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+    return escapedText
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\n/g, '<br />');
 };
