@@ -16,7 +16,12 @@ const AIProfileSummary = ({ client }: { client: Client }) => {
         setError('');
         try {
             const result = await getClientRiskProfileSummary(client.riskProfile);
-            setSummary(result.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'));
+            // AI Quality Insight: Escape HTML before applying markdown to prevent XSS via dangerouslySetInnerHTML
+            const escapedResult = result
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+            setSummary(escapedResult.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'));
         } catch (err) {
             console.error(err);
             setError('Could not load AI summary.');
