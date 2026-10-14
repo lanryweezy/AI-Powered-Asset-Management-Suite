@@ -70,7 +70,15 @@ export const getPortfolioOptimization = async (assets: PortfolioAsset[]): Promis
         }), 15000);
 
         const jsonText = response.text.trim();
-        const suggestions = JSON.parse(jsonText);
+
+        let suggestions;
+        // AI Quality Insight: Wrap JSON.parse(completion) in validated, typed safe-parse
+        try {
+            suggestions = JSON.parse(jsonText);
+        } catch (e) {
+            console.error("Malformed AI output:", e);
+            throw new Error("Invalid JSON returned from AI");
+        }
 
         // AI Quality Insight: Validate expected shape before casting to prevent UI crashes like React .map() errors
         if (!Array.isArray(suggestions)) {
