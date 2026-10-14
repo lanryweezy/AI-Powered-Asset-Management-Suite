@@ -97,3 +97,7 @@
 ## 2026-10-15 - Prevent XSS in AI Text Outputs
 **Learning:** Raw model string outputs directly rendered using `dangerouslySetInnerHTML` expose the application to Cross-Site Scripting (XSS) vulnerabilities. An attacker could potentially prompt-inject the model to output `<script>` or other malicious HTML tags.
 **Action:** Always sanitize AI text outputs by escaping HTML characters (like `<`, `>`, and `&`) before applying any intentional formatting (like markdown bolding) and rendering via `dangerouslySetInnerHTML`.
+
+## 2026-10-18 - Graceful JSON Parsing
+**Learning:** Returning unvalidated JSON parsing output directly without timeouts or fallbacks risks complete UI failure when the AI service hangs or returns malformed data for the `getPortfolioOptimization` feature.
+**Action:** Always wrap `JSON.parse()` in a validated, typed safe-parse block to prevent `SyntaxError` crashes on bad model output.
