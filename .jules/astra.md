@@ -101,3 +101,7 @@
 ## 2026-10-18 - Graceful JSON Parsing
 **Learning:** Returning unvalidated JSON parsing output directly without timeouts or fallbacks risks complete UI failure when the AI service hangs or returns malformed data for the `getPortfolioOptimization` feature.
 **Action:** Always wrap `JSON.parse()` in a validated, typed safe-parse block to prevent `SyntaxError` crashes on bad model output.
+
+## 2026-10-15 - Cache Deterministic AI Calls
+**Learning:** Re-fetching deterministic AI calls (like a stock's SWOT analysis) every time a user views it results in redundant API requests. This unnecessarily increases latency and consumes additional API tokens.
+**Action:** Implement an in-memory cache (like a `Map`) to store and reuse the results of deterministic AI calls within a session, significantly improving UI responsiveness and reducing costs.

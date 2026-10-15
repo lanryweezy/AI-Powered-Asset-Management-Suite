@@ -735,14 +735,23 @@ export const getPortfolioDoctorAnalysis = async (assets: PortfolioAsset[]): Prom
     };
 };
 
+// AI Quality Insight: Cache deterministic AI calls to reduce redundant requests and save tokens
+const swotCache = new Map<string, SWOTAnalysis>();
+
 export const getStockSWOT = async (ticker: string): Promise<SWOTAnalysis> => {
+    if (swotCache.has(ticker)) {
+        return swotCache.get(ticker)!;
+    }
+
      if (useMock) {
-        return Promise.resolve({
+        const mockResult = {
             strengths: ["Strong brand recognition and market leadership in its sector.", "Diversified revenue streams and recent expansion into new markets."],
             weaknesses: ["High operational costs compared to competitors.", "Dependence on a single flagship product for a majority of revenue."],
             opportunities: ["Growing consumer demand in emerging markets.", "Potential for strategic partnerships with tech startups."],
             threats: ["Increasing regulatory scrutiny in key markets.", "Intensifying competition from both domestic and international players."]
-        });
+        };
+        swotCache.set(ticker, mockResult);
+        return Promise.resolve(mockResult);
     }
 
     // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
@@ -780,6 +789,7 @@ export const getStockSWOT = async (ticker: string): Promise<SWOTAnalysis> => {
         try {
             const parsed = JSON.parse(jsonText);
             if (parsed && isArrayOfStrings(parsed.strengths) && isArrayOfStrings(parsed.weaknesses) && isArrayOfStrings(parsed.opportunities) && isArrayOfStrings(parsed.threats)) {
+                swotCache.set(ticker, parsed);
                 return parsed;
             }
         } catch (e) {
