@@ -809,7 +809,15 @@ export const getStockSWOT = async (ticker: string): Promise<SWOTAnalysis> => {
 };
 
 
+// AI Quality Insight: Cache deterministic AI calls to reduce redundant requests and save tokens
+const compareCache = new Map<string, string>();
+
 export const compareStocks = async (stocks: Stock[]): Promise<string> => {
+    const cacheKey = stocks.map(s => s.ticker).sort().join(',');
+    if (compareCache.has(cacheKey)) {
+        return compareCache.get(cacheKey)!;
+    }
+
     if (useMock) {
         const stock1 = stocks[0]?.ticker || 'Stock A';
         const stock2 = stocks[1]?.ticker || 'Stock B';
@@ -834,6 +842,7 @@ export const compareStocks = async (stocks: Stock[]): Promise<string> => {
                 systemInstruction: FINAI_SYSTEM_PROMPT,
             }
         }), 10000);
+        compareCache.set(cacheKey, response.text);
         return response.text;
     } catch (error) {
         console.error("Error comparing stocks:", error);
@@ -842,7 +851,14 @@ export const compareStocks = async (stocks: Stock[]): Promise<string> => {
     }
 };
 
+// AI Quality Insight: Cache deterministic AI calls to reduce redundant requests and save tokens
+const modelAnalysisCache = new Map<string, ModelPortfolioAnalysis>();
+
 export const getModelPortfolioAnalysis = async (model: ModelPortfolio): Promise<ModelPortfolioAnalysis> => {
+    if (modelAnalysisCache.has(model.name)) {
+        return modelAnalysisCache.get(model.name)!;
+    }
+
     if (useMock) {
         let projectedReturn = 12.5;
         let maxDrawdown = -15.2;
@@ -916,6 +932,7 @@ export const getModelPortfolioAnalysis = async (model: ModelPortfolio): Promise<
                 typeof parsed.projectedReturn === 'number' &&
                 typeof parsed.maxDrawdown === 'number'
             ) {
+                modelAnalysisCache.set(model.name, parsed as ModelPortfolioAnalysis);
                 return parsed as ModelPortfolioAnalysis;
             }
             throw new Error("Invalid output format from Model Portfolio Analysis");
