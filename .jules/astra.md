@@ -105,3 +105,7 @@
 ## 2026-10-15 - Cache Deterministic AI Calls
 **Learning:** Re-fetching deterministic AI calls (like a stock's SWOT analysis) every time a user views it results in redundant API requests. This unnecessarily increases latency and consumes additional API tokens.
 **Action:** Implement an in-memory cache (like a `Map`) to store and reuse the results of deterministic AI calls within a session, significantly improving UI responsiveness and reducing costs.
+
+## 2026-11-05 - Timeout on Chat Streams
+**Learning:** AI chat stream initializations (like `sendMessageStream`) can hang indefinitely if the model API is unresponsive, leaving the user interface locked in a loading state.
+**Action:** Always wrap the stream initialization in a timeout utility (like `withTimeout`) to ensure the application fails fast and can gracefully recover or inform the user.
