@@ -19,7 +19,7 @@ const isArrayOfStrings = (value: any): value is string[] => {
 };
 
 // AI Quality Insight: Wrap AI calls in timeout to prevent hanging UI
-const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
+export const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
     return Promise.race([
         promise,
         new Promise<T>((_, reject) =>

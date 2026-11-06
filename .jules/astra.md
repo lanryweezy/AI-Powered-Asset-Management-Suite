@@ -105,3 +105,10 @@
 ## 2026-10-15 - Cache Deterministic AI Calls
 **Learning:** Re-fetching deterministic AI calls (like a stock's SWOT analysis) every time a user views it results in redundant API requests. This unnecessarily increases latency and consumes additional API tokens.
 **Action:** Implement an in-memory cache (like a `Map`) to store and reuse the results of deterministic AI calls within a session, significantly improving UI responsiveness and reducing costs.
+
+
+
+
+## 2026-10-23 - Prevent UI Hangs on Chat Stream Initialization
+**Learning:** Initializing an AI chat stream without a timeout leaves the UI vulnerable to hanging indefinitely if the model API is slow or unresponsive during the initial connection.
+**Action:** Wrap the `chat.sendMessageStream` call with a utility function like `withTimeout` to enforce a maximum wait time for the initial stream connection. Because `sendMessageStream` returns an AsyncGenerator, the result of `withTimeout` must be explicitly cast to `AsyncGenerator<any, any, unknown>` to prevent TypeScript errors in `for await` loops.

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { startChat } from '../services/geminiService.ts';
+import { startChat, withTimeout } from '../services/geminiService.ts';
 import type { Chat } from '@google/genai';
 import { ChatMessage } from '../types.ts';
 
@@ -50,7 +50,8 @@ const AIChatAssistant: React.FC = () => {
 
         try {
             let fullResponse = "";
-            const stream = await chat.sendMessageStream({ message: input });
+            // AI Quality Insight: Wrap in timeout to prevent hanging UI on stream initialization
+            const stream = await withTimeout(chat.sendMessageStream({ message: input }) as any, 10000) as AsyncGenerator<any, any, unknown>;
             setMessages(prev => [...prev, { role: 'model', text: '' }]);
 
             for await (const chunk of stream) {
