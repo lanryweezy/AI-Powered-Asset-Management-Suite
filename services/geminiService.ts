@@ -212,13 +212,18 @@ export const generateReportSummary = async (clientName: string, reportType: stri
     }
 
     // AI Quality Insight: Wrap raw user input in a prompt template and explicitly set systemInstruction to mitigate prompt injection and enforce persona limits.
+    // Also wrap serialized dynamic user data (like assets array) in explicit XML boundaries to prevent prompt injection.
     const prompt = `You are writing a summary for a client based on the details below:
     <client_details>
     Name: ${clientName}
     Report Type: ${reportType}
     Reporting Period: ${reportingPeriod}
     </client_details>
-    Based on their portfolio, which consists of these assets: ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, change: a.change, sector: a.sector })))}, please write a brief, professional, and encouraging summary for the client.
+    Based on their portfolio, which consists of these assets:
+    <portfolio>
+    ${JSON.stringify(assets.map(a => ({ ticker: a.ticker, value: a.value, change: a.change, sector: a.sector })))}
+    </portfolio>
+    Please write a brief, professional, and encouraging summary for the client.
     Keep it to 3-4 sentences. Use markdown for bolding key terms.`;
 
     try {
