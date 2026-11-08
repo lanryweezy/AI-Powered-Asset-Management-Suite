@@ -109,3 +109,7 @@
 ## 2026-11-05 - Timeout on Chat Streams
 **Learning:** AI chat stream initializations (like `sendMessageStream`) can hang indefinitely if the model API is unresponsive, leaving the user interface locked in a loading state.
 **Action:** Always wrap the stream initialization in a timeout utility (like `withTimeout`) to ensure the application fails fast and can gracefully recover or inform the user.
+
+## 2026-11-08 - Prevent Prompt Injection in Report Summary
+**Learning:** In `generateReportSummary`, while some fields were protected with `<client_details>`, the `assets` array was `JSON.stringify`'d and injected directly into the prompt string without XML boundaries. This creates a vulnerability where an attacker could construct malicious ticker symbols or sector names containing prompt injection payloads to override the model's instructions.
+**Action:** Always wrap serialized dynamic user data (like the `assets` array) in explicit XML boundaries (e.g., `<portfolio>`) within the prompt template to prevent prompt injection and cleanly separate data from instructions.
